@@ -4,6 +4,19 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 
 ## Development server
 
+# Install NVM (Node Version Manager)
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+
+# Restart terminal or run:
+source ~/.bashrc
+
+# Install Node.js
+nvm install node
+nvm use node
+
+# Install Angular CLI
+npm install -g @angular/cli
+
 To start a local development server, run:
 
 ```bash
