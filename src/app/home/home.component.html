@@ -1,10 +1,37 @@
 <div class="home-container">
-  <h1>Welcome to our CAPTCHA challenges</h1>
-  <p>
-    Our CAPTCHA challenges are designed to ensure that only real humans can
-    access certain features of our website. By completing these simple puzzles,
-    you help us prevent automated bots and protect the integrity of our
-    platform. Thank you for your understanding and cooperation!
-  </p>
-  <button (click)="startChallenge()">Commencer</button>
+  <div class="header-section">
+    <h1>
+      Bienvenue sur CAPTCHA <br />
+      HumanCheck
+    </h1>
+    <p class="subtitle">
+      Sécurité intelligente pour une meillleure expérience humaine
+    </p>
+  </div>
+
+  <div class="main-content">
+    <p>
+      Nos challenges CAPTCHA sont conçus pour garantir que seuls de véritables
+      humains peuvent accéder à certaines fonctionnalités de notre site web. En
+      complétant ces puzzles simples, vous nous aidez à prévenir les robots
+      automatisés et à protéger l'intégrité de notre plateforme.
+      <br />(Zone01-Angul-it)
+    </p>
+
+    <div class="did-you-know">
+      <h3><span class="icon">💡</span> Le saviez-vous ?</h3>
+      <p>
+        CAPTCHA est un acronyme pour "Completely Automated Public Turing test to
+        tell Computers and Humans Apart" (Test de Turing public et automatisé
+        pour différencier les ordinateurs des humains). Inventé en 2000, ce
+        système permet de distinguer un utilisateur humain d'un robot en
+        proposant des tests que seuls les humains peuvent résoudre facilement.
+      </p>
+    </div>
+
+    <button (click)="startChallenge()" class="start-button">
+      <span class="button-text">Commencer le défi</span>
+      <span class="button-icon">→</span>
+    </button>
+  </div>
 </div>

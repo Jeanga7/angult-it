@@ -12,7 +12,15 @@ import { CommonModule } from '@angular/common';
 export class HomeComponent {
   constructor(private router: Router) {}
 
-  startChallenge(){
-    this.router.navigate(['/captcha']);
+  startChallenge() {
+    const button = document.querySelector('.start-button') as HTMLElement;
+    if (button) {
+      button.style.transform = 'scale(0.95)';
+      setTimeout(() => {
+        this.router.navigate(['/captcha']);
+      }, 500);
+    } else {
+      this.router.navigate(['/captcha']);
+    }
   }
 }
