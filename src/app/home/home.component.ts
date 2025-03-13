@@ -18,7 +18,7 @@ export class HomeComponent {
       button.style.transform = 'scale(0.95)';
       setTimeout(() => {
         this.router.navigate(['/captcha']);
-      }, 500);
+      }, 300);
     } else {
       this.router.navigate(['/captcha']);
     }
