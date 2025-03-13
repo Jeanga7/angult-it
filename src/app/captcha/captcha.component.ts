@@ -1,6 +1,7 @@
-import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { CaptchaService } from '../services/captcha.service';
 
 @Component({
   selector: 'app-captcha',
@@ -9,69 +10,86 @@ import { Router } from '@angular/router';
   templateUrl: './captcha.component.html',
   styleUrls: ['./captcha.component.css'],
 })
-export class CaptchaComponent {
+export class CaptchaComponent implements OnInit {
   currentChallengeIndex = 0;
-  challenges = [
-    {
-      type: 'image',
-      question: 'Select all images with a car',
-      options: [
-        { id: 1, src: 'car1.png', isCorrect: true },
-        { id: 2, src: 'bike1.png', isCorrect: false },
-        { id: 3, src: 'car2.png', isCorrect: true },
-        { id: 4, src: 'tree1.png', isCorrect: false },
-        { id: 5, src: 'bike2.png', isCorrect: false },
-        { id: 6, src: 'tree2.png', isCorrect: false },
-      ],
-    },
-    {
-      type: 'math',
-      question: 'What is 2 + 2?',
-      answer: 4,
-    },
-    {
-      type: 'text',
-      question: 'Type "Paris" to continue',
-      answer: 'Paris',
-    },
-  ];
-
   userAnswers: any[] = [];
   isValid = false;
 
-  constructor(private router: Router) {}
+  challenges = [
+    {
+      type: 'image',
+      question: 'Sélectionnez toutes les images contenant des voitures',
+      options: [
+        { id: 1, src: 'car1.png', isCorrect: true },
+        { id: 2, src: 'bike1.png', isCorrect: false },
+        { id: 3, src: 'bike2.png', isCorrect: false },
+        { id: 4, src: 'car2.png', isCorrect: true },
+        { id: 5, src: 'bike2.png', isCorrect: true },
+        { id: 6, src: 'car2.png', isCorrect: true },
+        { id: 7, src: 'tree1.png', isCorrect: true },
+        { id: 8, src: 'car1.png', isCorrect: true },
+        { id: 9, src: 'car2.png', isCorrect: true },
+        { id: 10, src: 'tree2.png', isCorrect: true },
+        { id: 11, src: 'car2.png', isCorrect: true },
+        { id: 12, src: 'tree1.png', isCorrect: true }
+      ],
+    },
+    { type: 'math', question: 'Combien font 3 + 4 ?', answer: 7 },
+    {
+      type: 'text',
+      question: 'Tapez "Angular" pour continuer',
+      answer: 'Angular',
+    },
+  ];
+
+  constructor(private router: Router, private captchaService: CaptchaService) {}
+
+  ngOnInit() {
+    const savedProgress = this.captchaService.getProgress();
+    if (savedProgress) {
+      this.currentChallengeIndex = savedProgress.currentChallengeIndex;
+      this.userAnswers = savedProgress.userAnswers;
+      this.validateForm();
+    }
+  }
+
+  onAnswerSelected(event: any) {
+    const challenge = this.challenges[this.currentChallengeIndex];
+    if (challenge.type === 'image') {
+      this.userAnswers[this.currentChallengeIndex] = event;
+    } else {
+      const answer = event.target.value.trim();
+      this.userAnswers[this.currentChallengeIndex] = answer;
+    }
+    this.validateForm();
+    this.saveProgress();
+  }
 
   validateForm() {
-    this.isValid = this.userAnswers[this.currentChallengeIndex];
+    const challenge = this.challenges[this.currentChallengeIndex];
+    if (challenge.type === 'image') {
+      this.isValid = this.userAnswers[this.currentChallengeIndex] === true;
+    } else {
+      this.isValid =
+        this.userAnswers[this.currentChallengeIndex] === challenge.answer;
+    }
   }
 
-  onImageSelect(selectedOption: any) {
-    this.userAnswers[this.currentChallengeIndex] = selectedOption;
-    this.validateForm();
-  }
-
-  onMathAnswer(event: any) {
-    const numericAnswer = parseInt(event.target.value, 10);
-    this.userAnswers[this.currentChallengeIndex] = 
-      this.challenges[this.currentChallengeIndex].answer === numericAnswer;
-    this.validateForm();
-  }
-
-  onTextAnswer(event: any) {
-    const answer = event.target.value.trim();
-    const currentChallenge = this.challenges[this.currentChallengeIndex];
-    
-    // Comparaison insensible à la casse
-    this.userAnswers[this.currentChallengeIndex] = 
-      answer.toLowerCase() === String(currentChallenge.answer).toLowerCase();
-    
-    this.validateForm();
+  saveProgress() {
+    this.captchaService.saveProgress({
+      currentChallengeIndex: this.currentChallengeIndex,
+      userAnswers: this.userAnswers,
+    });
   }
 
   nextChallenge() {
-    if (this.currentChallengeIndex < this.challenges.length - 1) {
+    if (
+      this.isValid &&
+      this.currentChallengeIndex < this.challenges.length - 1
+    ) {
       this.currentChallengeIndex++;
       this.isValid = false;
+      this.saveProgress();
     }
   }
 
@@ -82,8 +100,9 @@ export class CaptchaComponent {
     }
   }
 
-  finishCaptchas() {
+  finishCaptcha() {
     if (this.isValid) {
+      this.captchaService.clearProgress();
       this.router.navigate(['/result']);
     }
   }

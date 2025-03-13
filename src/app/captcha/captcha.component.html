@@ -1,61 +1,55 @@
 <div class="captcha-container">
   <!-- Progress indicator -->
   <div class="progress">
-    <div *ngFor="let challenge of challenges; let i = index" 
-         class="progress-dot"
-         [class.active]="i === currentChallengeIndex">
-    </div>
+    <div
+      *ngFor="let challenge of challenges; let i = index"
+      class="progress-dot"
+      [class.active]="i === currentChallengeIndex"
+    ></div>
   </div>
 
   <h2>{{ challenges[currentChallengeIndex].question }}</h2>
 
-  <!-- Image challenges -->
   <div *ngIf="challenges[currentChallengeIndex].type === 'image'" class="image-grid">
     <div *ngFor="let option of challenges[currentChallengeIndex].options">
       <img
         [src]="option.src"
-        [alt]="option.src"
-        (click)="onImageSelect(option)"
-        [class.selected]="userAnswers[currentChallengeIndex] === option.isCorrect"
+        (click)="onAnswerSelected(option.isCorrect)"
+        [class.selected]="
+          userAnswers[currentChallengeIndex] === option.isCorrect
+        "
       />
     </div>
   </div>
 
-  <!-- Math challenges -->
   <div *ngIf="challenges[currentChallengeIndex].type === 'math'">
-    <input 
-      type="number" 
-      (input)="onMathAnswer($event)" 
-      placeholder="Enter your answer..."
-    />
+    <input type="number" (input)="onAnswerSelected($event)" />
   </div>
 
-  <!-- Text challenges -->
   <div *ngIf="challenges[currentChallengeIndex].type === 'text'">
-    <input 
-      type="text" 
-      (input)="onTextAnswer($event)" 
-      placeholder="Type your answer..."
-    />
+    <input type="text" (input)="onAnswerSelected($event)" />
   </div>
 
   <!-- Navigation buttons -->
   <div class="buttons">
     <button
       (click)="previousChallenge()"
-      [disabled]="currentChallengeIndex === 0">
+      [disabled]="currentChallengeIndex === 0"
+    >
       Previous
     </button>
-    <button 
+    <button
       *ngIf="currentChallengeIndex < challenges.length - 1"
-      (click)="nextChallenge()" 
-      [disabled]="!isValid">
+      (click)="nextChallenge()"
+      [disabled]="!isValid"
+    >
       Next
     </button>
-    <button 
+    <button
       *ngIf="currentChallengeIndex === challenges.length - 1"
-      (click)="finishCaptchas()" 
-      [disabled]="!isValid">
+      (click)="finishCaptcha()"
+      [disabled]="!isValid"
+    >
       Verify
     </button>
   </div>
