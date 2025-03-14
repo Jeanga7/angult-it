@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CaptchaService } from '../services/captcha.service';
+import e from 'express';
+import { generate } from 'rxjs';
 
 @Component({
   selector: 'app-captcha',
@@ -18,20 +20,21 @@ export class CaptchaComponent implements OnInit {
   challenges = [
     {
       type: 'image',
-      question: 'Sélectionnez toutes les images contenant des voitures',
+      question: '',
+      field: '',
       options: [
-        { id: 1, src: 'car1.png', isCorrect: true },
-        { id: 2, src: 'bike1.png', isCorrect: false },
-        { id: 3, src: 'bike2.png', isCorrect: false },
-        { id: 4, src: 'car2.png', isCorrect: true },
-        { id: 5, src: 'bike2.png', isCorrect: true },
-        { id: 6, src: 'car2.png', isCorrect: true },
-        { id: 7, src: 'tree1.png', isCorrect: true },
-        { id: 8, src: 'car1.png', isCorrect: true },
-        { id: 9, src: 'car2.png', isCorrect: true },
-        { id: 10, src: 'tree2.png', isCorrect: true },
-        { id: 11, src: 'car2.png', isCorrect: true },
-        { id: 12, src: 'tree1.png', isCorrect: true }
+        { id: 1, src: 'car1.png', image_type: 'voiture', selected: false },
+        { id: 2, src: 'bike1.png', image_type: 'vélo', selected: false },
+        { id: 3, src: 'bike2.png', image_type: 'vélo', selected: false },
+        { id: 4, src: 'car2.png', image_type: 'voiture', selected: false },
+        { id: 5, src: 'bike2.png', image_type: 'vélo', selected: false },
+        { id: 6, src: 'car2.png', image_type: 'voiture', selected: false },
+        { id: 7, src: 'tree1.png', image_type: 'arbre', selected: false },
+        { id: 8, src: 'car1.png', image_type: 'voiture', selected: false },
+        { id: 9, src: 'car2.png', image_type: 'voiture', selected: false },
+        { id: 10, src: 'tree2.png', image_type: 'arbre', selected: false },
+        { id: 11, src: 'car2.png', image_type: 'voiture', selected: false },
+        { id: 12, src: 'tree1.png', image_type: 'arbre', selected: false },
       ],
     },
     { type: 'math', question: 'Combien font 3 + 4 ?', answer: 7 },
@@ -45,6 +48,20 @@ export class CaptchaComponent implements OnInit {
   constructor(private router: Router, private captchaService: CaptchaService) {}
 
   ngOnInit() {
+    if (!this.captchaService.isLocalStorageAvailable()) {
+      return;
+    }
+    const savedChallenges = localStorage.getItem('challenges');
+    if (savedChallenges) {
+      this.challenges = JSON.parse(savedChallenges);
+    } else {
+      this.challenges.forEach((challenge) => {
+        if (challenge.type === 'image') {
+          this.generateRandomQuestion(challenge);
+        }
+      });
+    }
+  
     const savedProgress = this.captchaService.getProgress();
     if (savedProgress) {
       this.currentChallengeIndex = savedProgress.currentChallengeIndex;
@@ -53,10 +70,44 @@ export class CaptchaComponent implements OnInit {
     }
   }
 
+  generateRandomQuestion(challenge: any) {
+    if (challenge.type === 'image' && challenge.options) {
+      const fields = Array.from(
+        new Set(
+          challenge.options.map((option: { image_type: string }) => option.image_type)
+        )
+      );
+
+      const randomField = fields[Math.floor(Math.random() * fields.length)];
+      console.log(fields);
+      challenge.field = randomField;
+      challenge.question = `Sélectionnez toutes les images contenant des ${randomField}s`;
+
+      // Mélangez les options pour rendre l'ordre aléatoire
+      this.shuffleArray(challenge.options);
+
+      this.saveChallenges();
+    }
+  }
+
+  shuffleArray(array: any[]) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+  }
+
+  saveChallenges() {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('challenges', JSON.stringify(this.challenges));
+    }
+  }
+
   onAnswerSelected(event: any) {
     const challenge = this.challenges[this.currentChallengeIndex];
     if (challenge.type === 'image') {
       this.userAnswers[this.currentChallengeIndex] = event;
+      event.selected = !event.selected;
     } else {
       const answer = event.target.value.trim();
       this.userAnswers[this.currentChallengeIndex] = answer;
@@ -68,10 +119,12 @@ export class CaptchaComponent implements OnInit {
   validateForm() {
     const challenge = this.challenges[this.currentChallengeIndex];
     if (challenge.type === 'image') {
-      this.isValid = this.userAnswers[this.currentChallengeIndex] === true;
+      this.isValid = challenge.options
+        ? challenge.options.some((option) => option.selected)
+        : false;
     } else {
-      this.isValid =
-        this.userAnswers[this.currentChallengeIndex] === challenge.answer;
+      const userAnswer = this.userAnswers[this.currentChallengeIndex];
+      this.isValid = userAnswer !== undefined && userAnswer !== '';
     }
   }
 

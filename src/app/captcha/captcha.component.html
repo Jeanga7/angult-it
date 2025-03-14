@@ -10,14 +10,15 @@
 
   <h2>{{ challenges[currentChallengeIndex].question }}</h2>
 
-  <div *ngIf="challenges[currentChallengeIndex].type === 'image'" class="image-grid">
+  <div
+    *ngIf="challenges[currentChallengeIndex].type === 'image'"
+    class="image-grid"
+  >
     <div *ngFor="let option of challenges[currentChallengeIndex].options">
       <img
         [src]="option.src"
-        (click)="onAnswerSelected(option.isCorrect)"
-        [class.selected]="
-          userAnswers[currentChallengeIndex] === option.isCorrect
-        "
+        [class.selected]="option.selected"
+        (click)="onAnswerSelected(option)"
       />
     </div>
   </div>
