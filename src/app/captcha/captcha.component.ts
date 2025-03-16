@@ -23,18 +23,18 @@ export class CaptchaComponent implements OnInit {
       question: '',
       field: '',
       options: [
-        { id: 1, src: 'car1.png', image_type: 'voiture', selected: false },
-        { id: 2, src: 'car2.png', image_type: 'voiture', selected: false },
-        { id: 3, src: 'bike1.png', image_type: 'vélo', selected: false },
-        { id: 4, src: 'bike2.png', image_type: 'vélo', selected: false },
-        { id: 5, src: 'robot1.png', image_type: 'robot', selected: false },
-        { id: 6, src: 'robot2.png', image_type: 'robot', selected: false },
-        { id: 7, src: 'robot3.png', image_type: 'robot', selected: false },
-        { id: 8, src: 'tree2.png', image_type: 'arbre', selected: false },
-        { id: 9, src: 'tree1.png', image_type: 'arbre', selected: false },
-        { id: 10, src: 'pompier1.png', image_type: 'pompier', selected: false },
-        { id: 11, src: 'pompier2.png', image_type: 'pompier', selected: false },
-        { id: 12, src: 'pompier3.png', image_type: 'pompier', selected: false },
+        { id: 1, src: 'img/car1.png', image_type: 'voiture', selected: false },
+        { id: 2, src: 'img/car2.png', image_type: 'voiture', selected: false },
+        { id: 3, src: 'img/bike1.png', image_type: 'vélo', selected: false },
+        { id: 4, src: 'img/bike2.png', image_type: 'vélo', selected: false },
+        { id: 5, src: 'img/robot1.png', image_type: 'robot', selected: false },
+        { id: 6, src: 'img/robot2.png', image_type: 'robot', selected: false },
+        { id: 7, src: 'img/robot3.png', image_type: 'robot', selected: false },
+        { id: 8, src: 'img/tree2.png', image_type: 'arbre', selected: false },
+        { id: 9, src: 'img/tree1.png', image_type: 'arbre', selected: false },
+        { id: 10, src: 'img/pompier1.png', image_type: 'pompier', selected: false },
+        { id: 11, src: 'img/pompier2.png', image_type: 'pompier', selected: false },
+        { id: 12, src: 'img/pompier3.png', image_type: 'pompier', selected: false },
       ],
     },
     { type: 'math', question: 'Combien font 3 + 4 ?', answer: 7 },
@@ -43,6 +43,12 @@ export class CaptchaComponent implements OnInit {
       question: 'Tapez "Angular" pour continuer',
       answer: 'Angular',
     },
+    {
+      type: 'audio',
+      question: 'Écoutez l\'audio et tapez ce que vous entendez',
+      audioSrc: 'audio.mp3',
+      answer: 'Bonjour',
+    }
   ];
 
   constructor(private router: Router, private captchaService: CaptchaService) {}
@@ -55,15 +61,8 @@ export class CaptchaComponent implements OnInit {
     if (savedChallenges) {
       this.challenges = JSON.parse(savedChallenges);
     } else {
-      this.challenges.forEach((challenge) => {
-        if (challenge.type === 'image') {
-          this.generateRandomQuestion(challenge);
-        } else if (challenge.type === 'math') {
-          this.generateRandomMathChallenge(challenge);
-        } else if (challenge.type === 'text') {
-          this.generateRandomTextChallenge(challenge);
-        }
-      });
+      this.captchaService.generateRandomCaptcha(this.challenges);
+      this.saveChallenges();
     }
 
     const savedProgress = this.captchaService.getProgress();
@@ -71,123 +70,6 @@ export class CaptchaComponent implements OnInit {
       this.currentChallengeIndex = savedProgress.currentChallengeIndex;
       this.userAnswers = savedProgress.userAnswers;
       this.validateForm();
-    }
-  }
-
-  generateRandomTextChallenge(challenge: any) {
-    const phrases = [
-      'Angular est cool',
-      'Typescript est super',
-      'Captcha est facile',
-      'Je suis un robot',
-      'African Devs',
-      'Je suis humain',
-    ];
-
-    const words = [
-      'Angular',
-      'robot',
-      'Captcha',
-      'African',
-      'Devs',
-      'humain',
-      'Puissant',
-      'Secure',
-      'challenge',
-      'Check',
-    ];
-
-    // Générer un mot ou une phrase aléatoirement
-    const useWord = Math.random() < 0.6;
-    const randomText = useWord
-      ? words[Math.floor(Math.random() * words.length)]
-      : phrases[Math.floor(Math.random() * phrases.length)];
-
-    // Générer une transformation aléatoire
-    const transformations = useWord
-      ? ['lowercase', 'reverse', 'missing', 'shuffle', 'emoji']
-      : ['lowercase', 'reverse', 'missing'];
-    const transformation = transformations[Math.floor(Math.random() * transformations.length)];
-
-    let transformedText = randomText;
-    switch (transformation) {
-      case 'lowercase':
-        transformedText = randomText.toUpperCase();
-        challenge.question = `Tapez ce texte en minuscules: ${transformedText}`;
-        break;
-      case 'reverse':
-        transformedText = randomText.split('').reverse().join('');
-        challenge.question = `Tapez ce texte à l'envers: ${transformedText}`;
-        break;
-      case 'missing':
-        transformedText = randomText.replace(/[aeiou]/gi, '_');
-        challenge.question = `Complétez ce texte avec les voyelles manquantes: ${transformedText}`;
-        break;
-        case 'shuffle':
-          transformedText = randomText.split('').sort(() => Math.random() - 0.5).join('');
-          challenge.question = `Réorganisez les lettres pour retrouver le mot : "${transformedText}"`;
-          break;
-    
-        case 'emoji':
-          transformedText = randomText.replace(/e/gi, '😊').replace(/a/gi, '🎉');
-          challenge.question = `Tapez ce mot en remplaçant les emojis par les lettres correspondantes : "${transformedText}"`;
-          break;
-    }
-
-    challenge.answer = randomText;
-  }
-
-  generateRandomMathChallenge(challenge: any) {
-    const operation = ['+', '-', '*', '/'][Math.floor(Math.random() * 4)];
-    const num1 = Math.floor(Math.random() * 10);
-    const num2 = Math.floor(Math.random() * 10);
-
-    let answer;
-    switch (operation) {
-      case '+':
-        answer = num1 + num2;
-        break;
-      case '-':
-        answer = num1 - num2;
-        break;
-      case '*':
-        answer = num1 * num2;
-        break;
-      case '/':
-        answer = num1 / num2;
-        break;
-    }
-
-    challenge.question = `Combien font: ${num1} ${operation} ${num2} ?`;
-    challenge.answer = answer;
-  }
-
-  generateRandomQuestion(challenge: any) {
-    if (challenge.type === 'image' && challenge.options) {
-      const fields = Array.from(
-        new Set(
-          challenge.options.map(
-            (option: { image_type: string }) => option.image_type
-          )
-        )
-      );
-
-      const randomField = fields[Math.floor(Math.random() * fields.length)];
-      console.log(fields);
-      challenge.field = randomField;
-      challenge.question = `Sélectionnez toutes les images contenant des ${randomField}s`;
-
-      // Mélangez les options pour rendre l'ordre aléatoire
-      this.shuffleArray(challenge.options);
-
-      this.saveChallenges();
-    }
-  }
-
-  shuffleArray(array: any[]) {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
     }
   }
 
