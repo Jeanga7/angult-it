@@ -38,13 +38,26 @@ export class ResultComponent implements OnInit {
       const correctAnswer =
         challenge.answer ||
         challenge.options?.filter((opt: any) => opt.selected);
-      const isCorrect =
-        challenge.type === 'image'
-          ? JSON.stringify(userAnswer) === JSON.stringify(correctAnswer)
-          : userAnswer?.toString().trim().toLowerCase() ===
-            correctAnswer?.toString().trim().toLowerCase();
 
-      if (!isCorrect) {
+      let isCorrect = false;
+
+      if (challenge.type === 'image') {
+        const userSelectedIds = Array.isArray(userAnswer)
+          ? userAnswer.map((opt: any) => opt.id).sort()
+          : [];
+        const correctSelectedIds = Array.isArray(correctAnswer)
+          ? correctAnswer.map((opt: any) => opt.id).sort()
+          : [];
+        isCorrect =
+          JSON.stringify(userSelectedIds) ===
+          JSON.stringify(correctSelectedIds);
+      } else {
+        isCorrect =
+          userAnswer?.toString().trim().toLowerCase() ===
+          correctAnswer?.toString().trim().toLowerCase();
+      }
+
+      if (isCorrect) {
         this.score++;
       }
 
