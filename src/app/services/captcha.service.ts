@@ -161,9 +161,11 @@ export class CaptchaService {
 
   generateRandomAudioChallenge(challenge: any) {
     const audioSamples = [
-      { src: 'audio/sample1.mp3', answer: 'Bonjour' },
-      { src: 'audio/sample2.mp3', answer: 'Angular' },
-      { src: 'audio/sample3.mp3', answer: 'Captcha' },
+      { src: 'sounds/angular.mp3', answer: 'Angular' },
+      { src: 'sounds/bonjour.mp3', answer: 'Bonjour' },
+      { src: 'sounds/humain.mp3', answer: 'Humain' },
+      { src: 'sounds/maman.mp3', answer: 'Maman' },
+      { src: 'sounds/no-robot.mp3', answer: 'Je ne suis pas un robot' },
     ];
   
     const randomSample = audioSamples[Math.floor(Math.random() * audioSamples.length)];

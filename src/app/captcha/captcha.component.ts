@@ -46,7 +46,7 @@ export class CaptchaComponent implements OnInit {
     {
       type: 'audio',
       question: 'Écoutez l\'audio et tapez ce que vous entendez',
-      audioSrc: 'audio.mp3',
+      audioSrc: 'sounds/bonjour.mp3',
       answer: 'Bonjour',
     }
   ];
@@ -99,7 +99,7 @@ export class CaptchaComponent implements OnInit {
         ? challenge.options.some((option) => option.selected)
         : false;
     } else {
-      const userAnswer = this.userAnswers[this.currentChallengeIndex];
+      const userAnswer = (this.userAnswers[this.currentChallengeIndex] as string)?.toLowerCase();
       this.isValid = userAnswer !== undefined && userAnswer !== '';
     }
   }
