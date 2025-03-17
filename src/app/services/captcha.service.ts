@@ -67,7 +67,7 @@ export class CaptchaService {
   }
 
   generateRandomMathChallenge(challenge: any) {
-    const operation = ['+', '-', '*', '/'][Math.floor(Math.random() * 4)];
+    const operation = ['+', '-', '*'][Math.floor(Math.random() * 3)];
     const num1 = Math.floor(Math.random() * 10);
     const num2 = Math.floor(Math.random() * 10);
 
@@ -81,9 +81,6 @@ export class CaptchaService {
         break;
       case '*':
         answer = num1 * num2;
-        break;
-      case '/':
-        answer = num1 / num2;
         break;
     }
 
@@ -139,8 +136,8 @@ export class CaptchaService {
         challenge.question = `Tapez ce texte à l'envers: ${transformedText}`;
         break;
       case 'missing':
-        transformedText = randomText.replace(/[aeiou]/gi, '_');
-        challenge.question = `Complétez ce texte avec les voyelles manquantes: ${transformedText}`;
+        transformedText = randomText.replace(/[aeo]/gi, '_');
+        challenge.question = `Complétez ce texte avec les voyelles manquantes (a-e-o): ${transformedText}`;
         break;
       case 'shuffle':
         transformedText = randomText
@@ -167,10 +164,18 @@ export class CaptchaService {
       { src: 'sounds/maman.mp3', answer: 'Maman' },
       { src: 'sounds/no-robot.mp3', answer: 'Je ne suis pas un robot' },
     ];
-  
-    const randomSample = audioSamples[Math.floor(Math.random() * audioSamples.length)];
+
+    const randomSample =
+    audioSamples[Math.floor(Math.random() * audioSamples.length)];
     challenge.audioSrc = randomSample.src;
-    challenge.question = 'Écoutez l\'audio et tapez ce que vous entendez';
+    challenge.question = "Écoutez l'audio et tapez ce que vous entendez";
     challenge.answer = randomSample.answer;
+  }
+
+  shuffleChallenges(challenges: any[]) {
+    for (let i = challenges.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [challenges[i], challenges[j]] = [challenges[j], challenges[i]];
+    }
   }
 }

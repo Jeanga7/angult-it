@@ -2,8 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CaptchaService } from '../services/captcha.service';
-import e from 'express';
-import { generate } from 'rxjs';
 
 @Component({
   selector: 'app-captcha',
@@ -32,9 +30,24 @@ export class CaptchaComponent implements OnInit {
         { id: 7, src: 'img/robot3.png', image_type: 'robot', selected: false },
         { id: 8, src: 'img/tree2.png', image_type: 'arbre', selected: false },
         { id: 9, src: 'img/tree1.png', image_type: 'arbre', selected: false },
-        { id: 10, src: 'img/pompier1.png', image_type: 'pompier', selected: false },
-        { id: 11, src: 'img/pompier2.png', image_type: 'pompier', selected: false },
-        { id: 12, src: 'img/pompier3.png', image_type: 'pompier', selected: false },
+        {
+          id: 10,
+          src: 'img/pompier1.png',
+          image_type: 'pompier',
+          selected: false,
+        },
+        {
+          id: 11,
+          src: 'img/pompier2.png',
+          image_type: 'pompier',
+          selected: false,
+        },
+        {
+          id: 12,
+          src: 'img/pompier3.png',
+          image_type: 'pompier',
+          selected: false,
+        },
       ],
     },
     { type: 'math', question: 'Combien font 3 + 4 ?', answer: 7 },
@@ -45,13 +58,27 @@ export class CaptchaComponent implements OnInit {
     },
     {
       type: 'audio',
-      question: 'Écoutez l\'audio et tapez ce que vous entendez',
+      question: "Écoutez l'audio et tapez ce que vous entendez",
       audioSrc: 'sounds/bonjour.mp3',
       answer: 'Bonjour',
-    }
+    },
   ];
 
-  constructor(private router: Router, private captchaService: CaptchaService) {}
+  constructor(private router: Router, private captchaService: CaptchaService) {
+    /* // blocker la console
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+        e.preventDefault();
+        alert('Console désactivée');
+      }
+    });
+
+    // blocker la console par click droit
+    document.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      alert('Clic droit désactivé');
+    }); */
+  }
 
   ngOnInit() {
     if (!this.captchaService.isLocalStorageAvailable()) {
@@ -62,6 +89,7 @@ export class CaptchaComponent implements OnInit {
       this.challenges = JSON.parse(savedChallenges);
     } else {
       this.captchaService.generateRandomCaptcha(this.challenges);
+      this.captchaService.shuffleChallenges(this.challenges);
       this.saveChallenges();
     }
 
@@ -98,9 +126,15 @@ export class CaptchaComponent implements OnInit {
       this.isValid = challenge.options
         ? challenge.options.some((option) => option.selected)
         : false;
-    } else {
-      const userAnswer = (this.userAnswers[this.currentChallengeIndex] as string)?.toLowerCase();
-      this.isValid = userAnswer !== undefined && userAnswer !== '';
+    } else if (
+      challenge.type === 'math' ||
+      challenge.type === 'text' ||
+      challenge.type === 'audio'
+    ) {
+      const userAnswer = this.userAnswers[this.currentChallengeIndex]
+        ?.toString()
+        .trim();
+      this.isValid = !!userAnswer;
     }
   }
 
@@ -112,10 +146,7 @@ export class CaptchaComponent implements OnInit {
   }
 
   nextChallenge() {
-    if (
-      this.isValid &&
-      this.currentChallengeIndex < this.challenges.length - 1
-    ) {
+    if (this.currentChallengeIndex < this.challenges.length - 1) {
       this.currentChallengeIndex++;
       this.isValid = false;
       this.saveProgress();
@@ -130,9 +161,8 @@ export class CaptchaComponent implements OnInit {
   }
 
   finishCaptcha() {
-    if (this.isValid) {
-      this.captchaService.clearProgress();
+      // this.captchaService.clearProgress();
+      localStorage.setItem('completed', 'true');
       this.router.navigate(['/result']);
-    }
   }
 }
