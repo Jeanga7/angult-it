@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CaptchaService } from '../services/captcha.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-captcha',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './captcha.component.html',
   styleUrls: ['./captcha.component.css'],
 })
@@ -84,6 +85,8 @@ export class CaptchaComponent implements OnInit {
     if (!this.captchaService.isLocalStorageAvailable()) {
       return;
     }
+
+    //Restauration des challenges
     const savedChallenges = localStorage.getItem('challenges');
     if (savedChallenges) {
       this.challenges = JSON.parse(savedChallenges);
@@ -93,12 +96,24 @@ export class CaptchaComponent implements OnInit {
       this.saveChallenges();
     }
 
+    //Restauration de la progression
     const savedProgress = this.captchaService.getProgress();
     if (savedProgress) {
       this.currentChallengeIndex = savedProgress.currentChallengeIndex;
       this.userAnswers = savedProgress.userAnswers;
-      this.validateForm();
+
+      this.challenges.forEach((challenge, index) => {
+        if (challenge.type === 'image' && this.userAnswers[index]) {
+          challenge.options?.forEach((option: any) => {
+            option.selected = this.userAnswers[index].some(
+              (selectedOption: any) => selectedOption.id === option.id
+            );
+          });
+        }
+      });
     }
+
+    this.validateForm();
   }
 
   saveChallenges() {
@@ -110,8 +125,10 @@ export class CaptchaComponent implements OnInit {
   onAnswerSelected(event: any) {
     const challenge = this.challenges[this.currentChallengeIndex];
     if (challenge.type === 'image') {
-      this.userAnswers[this.currentChallengeIndex] = event;
       event.selected = !event.selected;
+      this.userAnswers[this.currentChallengeIndex] = challenge.options
+        ? challenge.options.filter((option) => option.selected)
+        : [];
     } else {
       const answer = event.target.value.trim();
       this.userAnswers[this.currentChallengeIndex] = answer;
@@ -161,8 +178,8 @@ export class CaptchaComponent implements OnInit {
   }
 
   finishCaptcha() {
-      // this.captchaService.clearProgress();
-      localStorage.setItem('completed', 'true');
-      this.router.navigate(['/result']);
+    // this.captchaService.clearProgress();
+    localStorage.setItem('completed', 'true');
+    this.router.navigate(['/result']);
   }
 }

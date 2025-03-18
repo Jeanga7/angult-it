@@ -26,10 +26,6 @@ export class ResultComponent implements OnInit {
     const savedChallenges = localStorage.getItem('challenges');
     const savedAnswers = localStorage.getItem('captchaProgress');
 
-    /* if (!savedChallenges || !savedAnswers) {
-      this.router.navigate(['/captcha']);
-    } */
-
     this.challenges = JSON.parse(savedChallenges ?? '[]');
     this.userAnswers = JSON.parse(savedAnswers ?? '[]').userAnswers;
 

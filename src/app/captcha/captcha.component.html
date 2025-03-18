@@ -27,20 +27,44 @@
 
   <!-- Math challenges -->
   <div *ngIf="challenges[currentChallengeIndex].type === 'math'">
-    <input type="number" (input)="onAnswerSelected($event)" placeholder="Tapez le resultat içi"/>
+    <input
+      type="number"
+      (input)="onAnswerSelected($event)"
+      [(ngModel)]="userAnswers[currentChallengeIndex]"
+      (ngModelChange)="saveProgress()"
+      placeholder="Tapez le resultat içi"
+    />
   </div>
 
   <!-- Text challenges -->
   <div *ngIf="challenges[currentChallengeIndex].type === 'text'">
-    <input type="text" (input)="onAnswerSelected($event)" placeholder="Tapez la reponse içi"/>
+    <input
+      type="text"
+      (input)="onAnswerSelected($event)"
+      [(ngModel)]="userAnswers[currentChallengeIndex]"
+      (ngModelChange)="saveProgress()"
+      placeholder="Tapez la reponse içi"
+    />
   </div>
 
-  <div *ngIf="challenges[currentChallengeIndex].type === 'audio'" class="audio-challenge">
+  <div
+    *ngIf="challenges[currentChallengeIndex].type === 'audio'"
+    class="audio-challenge"
+  >
     <audio controls>
-      <source [src]="challenges[currentChallengeIndex].audioSrc" type="audio/mpeg" />
+      <source
+        [src]="challenges[currentChallengeIndex].audioSrc"
+        type="audio/mpeg"
+      />
       Votre navigateur ne supporte pas l'élément audio.
     </audio>
-    <input type="text" (input)="onAnswerSelected($event)" placeholder="Tapez ce que vous entendez"/>
+    <input
+      type="text"
+      (input)="onAnswerSelected($event)"
+      [(ngModel)]="userAnswers[currentChallengeIndex]"
+      (ngModelChange)="saveProgress()"
+      placeholder="Tapez ce que vous entendez"
+    />
   </div>
 
   <!-- Navigation buttons -->
