@@ -43,3 +43,19 @@ button {
 button:hover {
   background: #225a9c;
 }
+
+.congratulations {
+  text-align: center;
+  font-size: 1.2rem;
+  color: green;
+  margin: 1rem 0;
+  font-weight: bold;
+}
+
+.try-again {
+  text-align: center;
+  font-size: 1.2rem;
+  color: orange;
+  margin: 1rem 0;
+  font-weight: bold;
+}

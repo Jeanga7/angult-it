@@ -1,6 +1,19 @@
 <div class="result-container">
   <h2>Résultats du défi</h2>
   <p><strong>Score :</strong> {{ score }} / {{ results.length }}</p>
+
+  <!-- Message de félicitations -->
+  <div *ngIf="score === results.length" class="congratulations">
+    🎉 Félicitations ! Vous avez prouvé que vous n'êtes pas un robot avec un score parfait ! 🎉
+  </div>
+  <div *ngIf="score > results.length / 2 && score < results.length" class="congratulations">
+    👍 Bien joué ! Vous avez prouvé que vous n'êtes pas un robot avec un bon score !
+  </div>
+  <div *ngIf="score <= results.length / 2" class="try-again">
+    😅 Vous pouvez faire mieux ! Essayez à nouveau pour prouver que vous n'êtes pas un robot.
+  </div>
+  <br>
+  
   <ul>
     <li *ngFor="let result of results">
       <p><strong>Question :</strong> {{ result.question }}</p>
