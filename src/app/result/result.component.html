@@ -14,19 +14,5 @@
   </div>
   <br>
   
-  <ul>
-    <li *ngFor="let result of results">
-      <p><strong>Question :</strong> {{ result.question }}</p>
-      <p><strong>Votre réponse :</strong> {{ result.userAnswer }}</p>
-      <p><strong>Réponse correcte :</strong> {{ result.correctAnswer }}</p>
-      <p
-        [class.correct]="result.isCorrect"
-        [class.incorrect]="!result.isCorrect"
-      >
-        <strong>Résultat :</strong>
-        {{ result.isCorrect ? "Correct" : "Incorrect" }}
-      </p>
-    </li>
-  </ul>
   <button (click)="restartChallenge()">Recommencer</button>
 </div>
