@@ -139,10 +139,20 @@ export class CaptchaComponent implements OnInit {
 
   validateForm() {
     const challenge = this.challenges[this.currentChallengeIndex];
+    const userAnswer = this.userAnswers[this.currentChallengeIndex];
+      const correctAnswer =
+        challenge.answer ||
+        challenge.options?.filter((opt: any) => opt.selected);
     if (challenge.type === 'image') {
-      this.isValid = challenge.options
-        ? challenge.options.some((option) => option.selected)
-        : false;
+          const userSelectedIds = Array.isArray(userAnswer)
+          ? userAnswer.map((opt: any) => opt.id).sort()
+          : [];
+        const correctSelectedIds = Array.isArray(correctAnswer)
+          ? correctAnswer.map((opt: any) => opt.id).sort()
+          : [];
+        this.isValid =
+          JSON.stringify(userSelectedIds) ===
+          JSON.stringify(correctSelectedIds);
     } else if (
       challenge.type === 'math' ||
       challenge.type === 'text' ||
@@ -151,7 +161,10 @@ export class CaptchaComponent implements OnInit {
       const userAnswer = this.userAnswers[this.currentChallengeIndex]
         ?.toString()
         .trim();
-      this.isValid = !!userAnswer;
+      
+      this.isValid =
+          correctAnswer?.toString().trim().toLowerCase() ===
+          userAnswer?.toString().trim().toLowerCase();
     }
   }
 
